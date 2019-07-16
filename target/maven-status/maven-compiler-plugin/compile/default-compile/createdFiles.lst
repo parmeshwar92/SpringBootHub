@@ -1,0 +1,15 @@
+com\spring\crud\EmployeeManagement\repository\EmployeeRepository.class
+com\spring\crud\EmployeeManagement\controller\EmployeeController.class
+com\spring\crud\EmployeeManagement\Swagger.class
+com\spring\crud\EmployeeManagement\model\Gender.class
+com\spring\crud\EmployeeManagement\model\ErrorDetails.class
+com\spring\crud\EmployeeManagement\model\SubscriptionEntity.class
+com\spring\crud\EmployeeManagement\model\Employee.class
+com\spring\crud\EmployeeManagement\exception\ResourceNotFoundException.class
+com\spring\crud\EmployeeManagement\model\UserProfile.class
+com\spring\crud\EmployeeManagement\EmployeeManagementApplication.class
+com\spring\crud\EmployeeManagement\exception\GlobalExceptionHandler.class
+com\spring\crud\EmployeeManagement\model\BankDetails.class
+com\spring\crud\EmployeeManagement\repository\UserProfileRepository.class
+com\spring\crud\EmployeeManagement\repository\SubscriptionEntityRepository.class
+com\spring\crud\EmployeeManagement\repository\BankDetailsRepository.class
