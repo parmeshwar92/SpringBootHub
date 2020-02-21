@@ -1,0 +1,119 @@
+package com.dynacommerce.customer.application.adapter.bsl.cryptograph;
+
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.Base64;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class EncryptDecryptPassword {
+
+	private final String SEED_16_CHARACTER = "U1MjU1M0FDOUZ.Qz";
+	private final String characterEncoding = "UTF-8";
+	private final String cipherTransformation = "AES/CBC/PKCS5Padding";
+	private final String aesEncryptionAlgorithem = "AES";
+	private byte[] keyBytes = new byte[32];
+	private MessageDigest digest;
+	private Cipher cipher;
+	private SecretKeySpec key;
+	private Base64.Decoder decoder;
+	private Base64.Encoder encoder;
+	private AlgorithmParameterSpec spec;
+
+	public EncryptDecryptPassword() {
+
+	}
+
+	@SuppressWarnings("finally")
+	public String encryptPassword(String customerPasswordPlainText) {
+		String encryptedText = "";
+
+		try {
+			this.cryptographAlgorithm();
+			cipher.init(Cipher.ENCRYPT_MODE, key, spec);
+			byte[] encrypted = cipher.doFinal(customerPasswordPlainText.getBytes("UTF-8"));
+			encoder = Base64.getEncoder(); 
+			encryptedText = encoder.encodeToString(encrypted);
+			if ( ! encryptedText.isEmpty() ) {
+				return encryptedText;
+			}
+		} 
+		catch ( NoSuchAlgorithmException | UnsupportedEncodingException | NoSuchPaddingException | InvalidKeyException 
+				| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+			e.printStackTrace();
+		} finally {
+			return encryptedText;
+		}
+	}
+
+	@SuppressWarnings("finally")
+	public String decryptPassword(String encryptedCustomerPassword) {
+		String decryptedText = "";
+		try {
+			this.cryptographAlgorithm();
+			cipher.init(Cipher.DECRYPT_MODE, key, spec);
+			decoder = Base64.getDecoder();
+			byte[] cipherText = decoder.decode(encryptedCustomerPassword.getBytes("UTF8"));
+			decryptedText = new String(cipher.doFinal(cipherText), "UTF-8");
+			if ( ! decryptedText.isEmpty() ) {
+				return decryptedText;
+			}
+
+		}
+		catch (NoSuchAlgorithmException | UnsupportedEncodingException | NoSuchPaddingException | InvalidKeyException 
+				| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+			e.printStackTrace();
+		}
+		finally {
+			return decryptedText;
+		}
+	}
+
+	public static AlgorithmParameterSpec getIV() {
+		byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
+		IvParameterSpec ivParameterSpec;
+		ivParameterSpec = new IvParameterSpec(iv);
+		return ivParameterSpec;
+	}
+	public void cryptographAlgorithm() throws NoSuchAlgorithmException, UnsupportedEncodingException, NoSuchPaddingException {
+		digest = MessageDigest.getInstance("SHA-256");
+		digest.update(SEED_16_CHARACTER.getBytes(characterEncoding));
+		System.arraycopy(digest.digest(), 0, keyBytes, 0, keyBytes.length);
+		decoder = Base64.getDecoder();
+		cipher = Cipher.getInstance(cipherTransformation);
+		key= new SecretKeySpec(keyBytes, aesEncryptionAlgorithem);
+		spec = getIV();
+	}
+
+	public boolean passwordEncryptionValidation(String password ) {
+		String decryptedText = "";
+		boolean check_flag = false;
+		try {
+			this.cryptographAlgorithm();
+			cipher.init(Cipher.DECRYPT_MODE, key, spec);
+			if( password.substring(password.length() - 2).equals("==") ) {
+				byte[] cipherText = decoder.decode(password.getBytes("UTF8"));
+				decryptedText = new String(cipher.doFinal(cipherText), "UTF-8");
+			}
+			if ( ! decryptedText.isEmpty() ) {
+				return !check_flag;
+			}
+		}
+		catch( Exception e) {
+			return check_flag;	
+		}
+		return check_flag;
+	}
+
+}
